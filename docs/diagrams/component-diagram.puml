@@ -1,0 +1,72 @@
+﻿@startuml
+skinparam componentStyle rectangle
+actor "Account holder" as User
+package "Presentation" {
+ component "Swing Views / Controllers" as Swing
+}
+package "Application" {
+ component "AccountService" as AccountSvc
+ component "GroupService" as GroupSvc
+ component "ExpenseService" as ExpenseSvc
+ component "ApprovalService" as ApprovalSvc
+ component "NotificationService" as NotificationSvc
+ component "BalanceService" as BalanceSvc
+ component "PaymentService" as PaymentSvc
+ component "ReportService" as ReportSvc
+}
+package "Domain" {
+ component "Account / Group / Membership" as Identity
+ component "Expense / ExpenseShare / Approval" as ExpenseDomain
+ component "SplitCalculator / ApprovalPolicy" as Policies
+ component "BalanceCalculator / Money" as Finance
+ component "Payment / Receipt / Notification" as Records
+}
+package "Persistence" {
+ component "Account, Group, Expense, Approval,\nPayment, Notification Repositories" as Repos
+ database "Local relational database" as DB
+}
+package "Infrastructure" {
+ component "PasswordHasher / Reset Token" as Security
+ component "ReceiptStorage" as Receipt
+ component "In-app Notification Adapter" as NotifyAdapter
+ component "Clock" as Clock
+}
+actor "Web / Android / iOS clients\n(FUTURE; not Swing MVP)" as Future
+User --> Swing
+Swing --> AccountSvc
+Swing --> GroupSvc
+Swing --> ExpenseSvc
+Swing --> ApprovalSvc
+Swing --> NotificationSvc
+Swing --> BalanceSvc
+Swing --> PaymentSvc
+Swing --> ReportSvc
+Future ..> AccountSvc : future authenticated API boundary
+Future ..> ExpenseSvc
+AccountSvc --> Identity
+GroupSvc --> Identity
+ExpenseSvc --> ExpenseDomain
+ExpenseSvc --> Policies
+ApprovalSvc --> Policies
+BalanceSvc --> Finance
+PaymentSvc --> Finance
+ReportSvc --> Finance
+ExpenseDomain --> Records
+AccountSvc --> Repos
+GroupSvc --> Repos
+ExpenseSvc --> Repos
+ApprovalSvc --> Repos
+NotificationSvc --> Repos
+BalanceSvc --> Repos
+PaymentSvc --> Repos
+ReportSvc --> Repos
+Repos --> DB
+AccountSvc --> Security
+ExpenseSvc --> Receipt
+NotificationSvc --> NotifyAdapter
+AccountSvc --> Clock
+note bottom of Future
+Future clients and server deployment are a product requirement;
+technology and API design remain undecided.
+end note
+@enduml

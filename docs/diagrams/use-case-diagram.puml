@@ -1,0 +1,54 @@
+﻿@startuml
+left to right direction
+actor "Account Holder" as User
+actor "Group Member" as Member
+actor "Group Manager" as Manager
+rectangle SplitSmart {
+ usecase "Register account" as UC1
+ usecase "Sign in" as UC2
+ usecase "Reset password" as UC3
+ usecase "View personal expense and\nbalance information" as UC4
+ usecase "Create group" as UC5
+ usecase "Manage group and members" as UC6
+ usecase "Submit expense" as UC7
+ usecase "Select payer" as UC8
+ usecase "Select participants" as UC9
+ usecase "Select split method" as UC10
+ usecase "Attach optional receipt" as UC11
+ usecase "Approve expense" as UC12
+ usecase "Reject expense" as UC13
+ usecase "View notifications" as UC14
+ usecase "View group balances" as UC15
+ usecase "Record payment" as UC16
+ usecase "View expense report" as UC17
+ usecase "View balance report" as UC18
+ usecase "View payment report" as UC19
+ usecase "Verify eligible manager\n(other than submitter)" as Eligible
+}
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+Member --> UC5
+Member --> UC6
+Member --> UC7
+Member --> UC14
+Member --> UC15
+Member --> UC16
+Member --> UC17
+Member --> UC18
+Member --> UC19
+Manager --> UC6
+Manager --> UC12
+Manager --> UC13
+UC7 .> UC8 : <<include>>
+UC7 .> UC9 : <<include>>
+UC7 .> UC10 : <<include>>
+UC7 .> UC11 : <<extend>>
+UC12 .> Eligible : <<include>>
+UC13 .> Eligible : <<include>>
+note bottom of Eligible
+Only an active group manager other than
+expense submitter may decide a pending expense.
+end note
+@enduml

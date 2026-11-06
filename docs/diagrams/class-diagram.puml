@@ -1,0 +1,114 @@
+﻿@startuml
+skinparam classAttributeIconSize 0
+class Account {
+ +accountId: UUID
+ +email: String
+ +passwordHash: String
+ +displayName: String
+ +accountStatus: AccountStatus
+ +createdAt: Instant
+ +updatedAt: Instant
+}
+class Group {
+ +groupId: UUID
+ +name: String
+ +description: String?
+ +createdBy: UUID
+ +groupStatus: GroupStatus
+}
+class Membership {
+ +membershipId: UUID
+ +role: MembershipRole
+ +membershipStatus: MembershipStatus
+ +joinedAt: Instant
+ +leftAt: Instant?
+}
+class Expense {
+ +expenseId: UUID
+ +amount: BigDecimal
+ +currency: String
+ +expenseDate: LocalDate
+ +description: String
+ +splitMethod: SplitMethod
+ +status: ExpenseStatus
+ +submitterId: UUID
+ +payerId: UUID
+}
+class ExpenseShare {
+ +expenseShareId: UUID
+ +participantId: UUID
+ +percentage: BigDecimal?
+ +shareAmount: BigDecimal
+}
+class Approval {
+ +approvalId: UUID
+ +reviewerId: UUID
+ +decision: Decision
+ +reviewComment: String?
+ +reviewedAt: Instant
+}
+class Notification {
+ +notificationId: UUID
+ +recipientId: UUID
+ +notificationType: String
+ +createdAt: Instant
+ +readAt: Instant?
+}
+class Payment {
+ +paymentId: UUID
+ +payerId: UUID
+ +payeeId: UUID
+ +amount: BigDecimal
+ +currency: String
+ +paymentDate: LocalDate
+ +status: PaymentStatus
+}
+class Balance <<rebuildable projection>> {
+ +balanceId: UUID
+ +debtorId: UUID
+ +creditorId: UUID
+ +amount: BigDecimal
+ +currency: String
+ +updatedAt: Instant
+}
+class Receipt {
+ +receiptId: UUID
+ +storageReference: String
+ +fileName: String
+ +contentType: String
+ +uploadedAt: Instant
+}
+class ExpenseService
+class ApprovalService
+class BalanceService
+class PaymentService
+class ReportService
+class SplitCalculator
+class Money
+Account "1" -- "0..*" Membership
+Group "1" -- "0..*" Membership
+Group "1" -- "0..*" Expense
+Account "1" -- "0..*" Expense : submits
+Account "1" -- "0..*" Expense : pays
+Expense "1" *-- "1..*" ExpenseShare
+Account "1" -- "0..*" ExpenseShare : participates
+Expense "1" -- "0..1" Approval
+Account "1" -- "0..*" Approval : reviews
+Expense "1" -- "0..*" Notification
+Account "1" -- "0..*" Notification : receives
+Group "1" -- "0..*" Payment
+Account "1" -- "0..*" Payment : payer
+Account "1" -- "0..*" Payment : payee
+Group "1" -- "0..*" Balance
+Account "1" -- "0..*" Balance : debtor
+Account "1" -- "0..*" Balance : creditor
+Expense "1" -- "0..1" Receipt
+ExpenseService ..> SplitCalculator
+ApprovalService ..> Approval
+BalanceService ..> Balance
+PaymentService ..> Payment
+ReportService ..> Balance
+note bottom
+Membership is the sole source for manager/member role.
+Balance is derived from approved expense shares and payment records.
+@enduml

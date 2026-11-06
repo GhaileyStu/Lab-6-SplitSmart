@@ -1,0 +1,75 @@
+﻿@startuml
+actor Member
+actor Manager
+boundary "Swing View" as UI
+control "ExpenseService" as ExpenseSvc
+control "SplitCalculator" as Split
+control "NotificationService" as Notices
+control "ApprovalService" as ApprovalSvc
+control "AuthorizationService" as Auth
+control "BalanceService" as BalanceSvc
+control "PaymentService" as PaymentSvc
+control "ReportService" as ReportSvc
+control "ExpenseRepository" as ExpenseRepo
+control "PaymentRepository" as PaymentRepo
+control "ApprovalRepository" as ApprovalRepo
+control "NotificationRepository" as NoticeRepo
+control "ReportRepository" as ReportRepo
+database DB
+== A. Expense submission ==
+Member -> UI : submit expense fields
+UI -> ExpenseSvc : submit(command, actor)
+ExpenseSvc -> Auth : authorize active group member
+ExpenseSvc -> ExpenseSvc : validate amount/date/description/payer/participants
+ExpenseSvc -> Split : calculate shares(method, total, participants)
+Split --> ExpenseSvc : shares
+ExpenseSvc -> ExpenseSvc : assert percentages=100% if percentage; assert sum(shares)=total
+ExpenseSvc -> ExpenseRepo : save PENDING expense + shares (transaction)
+ExpenseRepo -> DB : INSERT expense and shares
+ExpenseSvc -> Notices : create for each other group member
+Notices -> NoticeRepo : save notices in same transaction
+NoticeRepo -> DB : INSERT notification rows
+ExpenseRepo --> ExpenseSvc : committed pending expense
+ExpenseSvc --> UI : confirmation
+== B. Expense approval ==
+Manager -> UI : approve/reject pending expense
+UI -> ApprovalSvc : review(expenseId, decision, actor)
+ApprovalSvc -> Auth : require active MANAGER
+ApprovalSvc -> ExpenseRepo : load pending expense
+ApprovalSvc -> ApprovalSvc : require reviewer != submitter
+ApprovalSvc -> ApprovalRepo : save decision + guarded status transition
+ApprovalRepo -> DB : transaction: INSERT approval; UPDATE status WHERE PENDING
+DB --> ApprovalRepo : commit / conflict
+ApprovalSvc --> UI : decision result
+== C. Balance calculation ==
+Member -> UI : view group balances
+UI -> BalanceSvc : getBalances(group, actor)
+BalanceSvc -> Auth : authorize active group member
+BalanceSvc -> ExpenseRepo : find APPROVED expenses and shares
+ExpenseRepo -> DB : SELECT approved records only
+BalanceSvc -> PaymentRepo : find recorded payments
+PaymentRepo -> DB : SELECT relevant payer/payee payments
+BalanceSvc -> BalanceSvc : net payer credits and participant shares; apply payments once
+BalanceSvc --> UI : pairwise obligations
+== D. Payment recording ==
+Member -> UI : submit payment
+UI -> PaymentSvc : record(command, actor)
+PaymentSvc -> BalanceSvc : load current directed obligation
+BalanceSvc --> PaymentSvc : obligation
+PaymentSvc -> PaymentSvc : validate positive amount; apply approved payment policy
+PaymentSvc -> PaymentRepo : persist payment (transaction)
+PaymentRepo -> DB : INSERT payment; refresh projection if used
+PaymentSvc --> UI : result and recalculated balance
+== E. Report generation ==
+Member -> UI : select report type and date range
+UI -> ReportSvc : generate(criteria, actor)
+ReportSvc -> Auth : authorize group membership
+ReportSvc -> ReportRepo : query matching expense/payment source rows
+ReportRepo -> DB : filtered queries; no filter means all dates
+ReportSvc -> ReportSvc : aggregate and reconcile totals
+ReportSvc --> UI : expense, balance and payment summary
+note over PaymentSvc
+Partial payment and overpayment policy are open in spec;
+validation must follow a later approved decision.
+end note
+@enduml

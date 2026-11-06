@@ -1,0 +1,22 @@
+﻿@startuml
+[*] --> Pending : submit valid expense / persist shares
+state Pending
+state Approved
+state Rejected
+Pending --> Approved : approve [active manager && reviewer != submitter]
+Pending --> Rejected : reject [active manager && reviewer != submitter]
+Approved --> [*] : balance eligible
+Rejected --> [*] : retained; no balance effect
+note right of Pending
+Pending has no balance effect.
+Only a pending expense can be reviewed.
+end note
+note right of Approved
+Approved shares are counted once
+by BalanceService.
+end note
+note right of Rejected
+Rejected record remains historical
+and never changes balances.
+end note
+@enduml
