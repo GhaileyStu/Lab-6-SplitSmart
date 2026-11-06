@@ -1,4 +1,4 @@
-﻿@startuml
+﻿@startuml Use Case Diagram
 left to right direction
 actor "Account Holder" as User
 actor "Group Member" as Member

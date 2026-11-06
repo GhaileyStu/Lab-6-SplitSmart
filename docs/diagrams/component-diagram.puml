@@ -1,4 +1,4 @@
-﻿@startuml
+﻿@startuml Component Diagram
 skinparam componentStyle rectangle
 actor "Account holder" as User
 package "Presentation" {

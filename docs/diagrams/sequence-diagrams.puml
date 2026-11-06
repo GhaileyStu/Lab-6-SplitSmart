@@ -1,4 +1,4 @@
-﻿@startuml
+﻿@startuml Sequence Diagram
 actor Member
 actor Manager
 boundary "Swing View" as UI

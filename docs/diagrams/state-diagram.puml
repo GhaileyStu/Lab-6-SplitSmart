@@ -1,4 +1,4 @@
-﻿@startuml
+﻿@startuml State Diagram
 [*] --> Pending : submit valid expense / persist shares
 state Pending
 state Approved

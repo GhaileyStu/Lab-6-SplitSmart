@@ -1,4 +1,4 @@
-﻿@startuml
+﻿@startuml Class Diagram
 skinparam classAttributeIconSize 0
 class Account {
  +accountId: UUID
