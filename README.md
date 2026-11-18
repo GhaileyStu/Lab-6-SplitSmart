@@ -1,7 +1,7 @@
 Important Context for the Instructor and Grader
 
-A folder containing part of my work was inadvertently deleted from my GitHub repository.
-I am currently in contact with GitHub Support to recover it, including its commit history.
+My prototype folder containing my work for lab 8 was inadvertently deleted from my GitHub repository.
+I am currently in contact with GitHub Support to recover it, including its commit history. I reuploaded it as of 11/17
 This repository has been updated so that grading is not blocked while I wait for Support to respond.
 
 Because of this, the history for the affected folder is incomplete and does not reflect my actual development timeline.
